@@ -36,7 +36,7 @@ def test_agent() -> str:
 # System prompt and agent initialization
 system_prompt = """You are a helpful AI assistant with access to calculator, web search, AWS services, and time tools. 
 You provide clear, accurate responses and use tools when needed to help users with their queries.
-Always explain your reasoning and be friendly in your interactions."""
+Always explain your reasoning and be friendly in your interactions. Please use the same languages as the users to provide chain of though and response"""
 
 # NOTE: Once fine-tuning completes, create deployment and replace with deployment ARN
 # After fine-tuning completes, run:
@@ -46,7 +46,7 @@ Always explain your reasoning and be friendly in your interactions."""
 #   --region us-east-1
 # Then replace model_id with the deployment ARN
 
-
+# model_id = "amazon.nova-2-lite-v1:0" # Using NOVA Lite 2.0 as LLM
 model_id = "us.amazon.nova-pro-v1:0"  # Using inference profile; replace with deployment ARN after job completes
 
 tools = [calculator, use_aws, current_time] 
