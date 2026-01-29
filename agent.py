@@ -33,27 +33,20 @@ def test_agent() -> str:
     
     return "\n".join(results)
 
+# TODO: Edit System Prompt and Model's id using your custom model deployment arn.
 # System prompt and agent initialization
 system_prompt = """You are a helpful AI assistant with access to calculator, web search, AWS services, and time tools. 
 You provide clear, accurate responses and use tools when needed to help users with their queries.
 Always explain your reasoning and be friendly in your interactions. Please use the same languages as the users to provide chain of though and response"""
 
-# NOTE: Once fine-tuning completes, create deployment and replace with deployment ARN
-# After fine-tuning completes, run:
-# aws bedrock create-custom-model-deployment \
-#   --custom-model-arn <output-model-arn-from-job> \
-#   --deployment-name nova-pro-custom-deployment \
-#   --region us-east-1
-# Then replace model_id with the deployment ARN
-
-# model_id = "amazon.nova-2-lite-v1:0" # Using NOVA Lite 2.0 as LLM
-model_id = "us.amazon.nova-pro-v1:0"  # Using inference profile; replace with deployment ARN after job completes
+model_id = "arn:aws:bedrock:us-east-1:<your account id>:custom-model-deployment/<deploymentid>"
 
 tools = [calculator, use_aws, current_time] 
 
 agent = Agent(
     model=BedrockModel(
-        model_id=model_id
+        model_id=model_id,
+        region_name = "us-east-1"
     ),
     tools=tools,
     system_prompt=system_prompt,
@@ -61,10 +54,21 @@ agent = Agent(
 )
 
 def main():
+    import boto3
+    
     print("\n" + "=" * 60)
     print("💬 Strands Agent Chat Interface")
     print("=" * 60)
-    print(f"\n🤖 Model: {model_id}")
+    model_name = model_id
+    try:
+        bedrock = boto3.client('bedrock', region_name='us-east-1')        
+        importedID = bedrock.get_custom_model_deployment(customModelDeploymentIdentifier=model_id)
+        model_name = importedID['modelArn'].split(':',5)[5].split('/',1)[1]
+        print(f"\n🤖 Custom Model: {model_name}")
+    except Exception as e:
+        model_name = model_id
+        print(f"\n🤖 Model: {model_id}")
+
     print("\n🛠️  Available Tools:")
     print("   🧮 calculator     - Perform mathematical operations")
     print("   ☁️  use_aws        - Interact with AWS services")
